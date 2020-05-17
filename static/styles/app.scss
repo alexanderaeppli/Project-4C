@@ -1,0 +1,14 @@
+.content__wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 95vh;
+
+  .content__inner {
+    width: 900px;
+    height: 600px;
+    border: solid #848484 3px;
+  }
+
+
+}

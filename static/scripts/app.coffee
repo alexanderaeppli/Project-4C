@@ -1,27 +1,67 @@
 class card
   constructor: (@color, @type) ->
-
-  id: ->
     if @color == 'red' or 'green' or 'yellow' or 'blue'
-      @color + "" + @type
+      this.id = @color + "_" + @type
     else
-      @type
+      this.id = @type
 
-  name: ->
     if @color == 'red' or 'green' or 'yellow' or 'blue'
-      @color + "" + @type
+      this.name = @color + " " + @type
     else
-      @type
+      this.name = @type
 
-#number cards
-createCards = (color) ->
-  count = 0;
-  while count <= 9
-    new card(color, count)
+# Shuffle function
+shuffle = (array) ->
+  currentIndex = array.length
+  temporaryValue = undefined
+  randomIndex = undefined
+  # While there remain elements to shuffle...
+  while 0 != currentIndex
+  # Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex)
+    currentIndex -= 1
+    # And swap it with the current element.
+    temporaryValue = array[currentIndex]
+    array[currentIndex] = array[randomIndex]
+    array[randomIndex] = temporaryValue
+  array
 
-colors = ['red', 'green', 'yellow', 'blue']
-cards = createCards(color) for color in colors
 
+# Create new deck
+deck = []
+
+createNewDeck = ->
+  deck = []
+  colors = ['red', 'green', 'yellow', 'blue']
+  specialTypes = ['skip', 'reverse', '+2']
+
+  for color in colors
+
+    # Number Cards (with 0)
+    count = 0;
+    while count <= 9
+      deck.push new card(color, count)
+      count++
+
+    # Number Cards (without 0)
+    count = 1;
+    while count <= 9
+      deck.push new card(color, count)
+      count++
+
+    # Color special cards
+    while count <= 9
+      deck.push new card(color, count)
+      count++
+
+  shuffle(deck)
+  return
+
+createNewDeck();
+
+card = new card 'red', '3'
+console.log card.id
+console.log deck
 
 socket = io()
 

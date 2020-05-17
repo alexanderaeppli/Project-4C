@@ -13,7 +13,7 @@ let mix = require('laravel-mix');
 
 // Asset management
 mix.coffee('static/scripts/app.coffee', 'static/')
-    .coffee('static/scripts/cards.coffee', 'static/')
+    //.coffee('static/scripts/cards.coffee', 'static/')
     .sass('static/styles/app.scss', 'static/')
     .disableNotifications();
 

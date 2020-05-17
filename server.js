@@ -4,7 +4,6 @@ var http = require('http');
 var path = require('path');
 var socketIO = require('socket.io');
 
-
 var app = express();
 var server = http.Server(app);
 var io = socketIO(server);
@@ -24,6 +23,8 @@ server.listen(5000, function() {
 
 // Add the WebSocket handlers
 io.on('connection', function(socket) {
+
+
 });
 
 /*

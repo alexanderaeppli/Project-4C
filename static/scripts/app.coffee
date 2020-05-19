@@ -1,13 +1,10 @@
 class card
   constructor: (@color, @type) ->
-    if @color == 'red' or 'green' or 'yellow' or 'blue'
+    if @color == 'red' or @color == 'green' or @color == 'yellow' or @color == 'blue'
       this.id = @color + "_" + @type
-    else
-      this.id = @type
-
-    if @color == 'red' or 'green' or 'yellow' or 'blue'
       this.name = @color + " " + @type
     else
+      this.id = @type
       this.name = @type
 
 # Shuffle function
@@ -33,7 +30,7 @@ deck = []
 createNewDeck = ->
   deck = []
   colors = ['red', 'green', 'yellow', 'blue']
-  specialTypes = ['skip', 'reverse', '+2']
+  specials = ['reverse', "reverse", 'skip', "skip", '+2', "+2"]
 
   for color in colors
 
@@ -50,18 +47,32 @@ createNewDeck = ->
       count++
 
     # Color special cards
-    while count <= 9
-      deck.push new card(color, count)
+    for cards in specials
+      deck.push new card(color, cards)
       count++
+
+  # Wildcards (without 0)
+  count = 1;
+  while count <= 4
+    deck.push new card(false, 'wildcard')
+    count++
+
+  # +4 Cards (without 0)
+  count = 1;
+  while count <= 4
+    deck.push new card(false, '+4')
+    count++
 
   shuffle(deck)
   return
 
 createNewDeck();
 
-card = new card 'red', '3'
-console.log card.id
 console.log deck
+
+document.getElementById('reset_btn').onclick = ->
+  createNewDeck()
+  console.log deck
 
 socket = io()
 

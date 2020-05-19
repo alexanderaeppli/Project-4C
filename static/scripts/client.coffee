@@ -1,4 +1,4 @@
-class card
+class Card
   constructor: (@color, @type) ->
     if @color == 'red' or @color == 'green' or @color == 'yellow' or @color == 'blue'
       this.id = @color + "_" + @type
@@ -23,56 +23,81 @@ shuffle = (array) ->
     array[randomIndex] = temporaryValue
   array
 
-
-# Create new deck
+# Variables
 deck = []
+playerHand = []
 
-createNewDeck = ->
+# Create Game
+createGame = ->
+  # Variables
   deck = []
-  colors = ['red', 'green', 'yellow', 'blue']
-  specials = ['reverse', "reverse", 'skip', "skip", '+2', "+2"]
+  playerHand = []
 
-  for color in colors
+  # Create new deck
+  createNewDeck = ->
+    deck = []
+    colors = ['red', 'green', 'yellow', 'blue']
+    specials = ['reverse', "reverse", 'skip', "skip", '+2', "+2"]
 
-    # Number Cards (with 0)
-    count = 0;
-    while count <= 9
-      deck.push new card(color, count)
-      count++
+    for color in colors
 
-    # Number Cards (without 0)
+      # Number Cards (with 0)
+      count = 0;
+      while count <= 9
+        deck.push new Card(color, count)
+        count++
+
+      # Number Cards (without 0)
+      count = 1;
+      while count <= 9
+        deck.push new Card(color, count)
+        count++
+
+      # Color special cards
+      for cards in specials
+        deck.push new Card(color, cards)
+        count++
+
+    # Wildcards
     count = 1;
-    while count <= 9
-      deck.push new card(color, count)
+    while count <= 4
+      deck.push new Card(false, 'wildcard')
       count++
 
-    # Color special cards
-    for cards in specials
-      deck.push new card(color, cards)
+    # +4 Cards
+    count = 1;
+    while count <= 4
+      deck.push new Card(false, '+4')
       count++
 
-  # Wildcards (without 0)
-  count = 1;
-  while count <= 4
-    deck.push new card(false, 'wildcard')
-    count++
+    shuffle(deck)
+    return
 
-  # +4 Cards (without 0)
-  count = 1;
-  while count <= 4
-    deck.push new card(false, '+4')
-    count++
+  createPlayerHand = ->
+    playerHand = deck.slice(0, 7)
+    deck = deck.slice(7)
+    return
 
-  shuffle(deck)
+  createNewDeck()
+  createPlayerHand()
+
+
+#display player hand
+displayPlayerHand = ->
+  deckWrapper= document.getElementById('player__inventory')
+  deckWrapper.innerHTML = ''
+  for card in playerHand
+    singleCard = document.createElement("div")
+    singleCard.id = card.id
+    singleCard.innerText = card.id
+    deckWrapper.appendChild(singleCard)
   return
 
-createNewDeck();
-
-console.log deck
-
 document.getElementById('reset_btn').onclick = ->
-  createNewDeck()
+  createGame()
   console.log deck
+  console.log playerHand
+  displayPlayerHand()
 
 socket = io()
 

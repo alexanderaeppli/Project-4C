@@ -12,9 +12,9 @@ let mix = require('laravel-mix');
  */
 
 // Asset management
-mix.coffee('static/scripts/app.coffee', 'static/')
-    //.coffee('static/scripts/cards.coffee', 'static/')
-    .sass('static/styles/app.scss', 'static/')
+mix.coffee('ressources/scripts/client.coffee', 'public/scripts/')
+    .coffee('ressources/scripts/servergame.coffee', 'public/scripts/')
+    .sass('ressources/styles/client.scss', 'public/styles')
     .disableNotifications();
 
 if(!mix.inProduction()) {

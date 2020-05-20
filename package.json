@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^2.3.0"
+    "fs": "0.0.1-security",
+    "net": "^1.0.2",
+    "socket.io": "^2.3.0",
+    "uws": "^100.0.1"
   },
   "description": "Similarities with existing games involving 4 colors are purely accidental and not intendet at all.",
-  "main": "server.js",
+  "main": "/server.js",
   "scripts": {
     "test": "npm echo 'test'",
     "development": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",

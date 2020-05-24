@@ -3,17 +3,16 @@
   "version": "1.0.0",
   "dependencies": {
     "express": "^4.17.1",
-    "fs": "0.0.1-security",
     "net": "^1.0.2",
-    "socket.io": "^2.3.0",
-    "uws": "^100.0.1"
+    "socket.io": "^2.3.0"
   },
   "description": "Similarities with existing games involving 4 colors are purely accidental and not intendet at all.",
-  "main": "/server.js",
+  "main": "./server.js",
   "scripts": {
     "test": "npm echo 'test'",
+    "server_script": "coffee --watch --compile server.coffee",
     "development": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-    "watch": "npm run development -- --watch"
+    "watch": "npm run development -- --watch & npm run server_script"
   },
   "repository": {
     "type": "git",
@@ -26,6 +25,7 @@
   },
   "homepage": "https://gitlab.com/alexanderaeppli/project4c#README",
   "devDependencies": {
+    "chokidar": "^3.4.0",
     "coffee-loader": "^0.9.0",
     "coffeescript": "^2.5.1",
     "laravel-mix": "^5.0.4",
@@ -33,6 +33,7 @@
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.11",
+    "webpack-node-externals": "^1.7.2"
   }
 }

@@ -2,7 +2,5 @@
     "/public/scripts/client.js": "/public/scripts/client.js",
     "/public/styles/client.css": "/public/styles/client.css",
     "/public/scripts/client.js.map": "/public/scripts/client.js.map",
-    "/public/styles/client.css.map": "/public/styles/client.css.map",
-    "/public/scripts/servergame.js": "/public/scripts/servergame.js",
-    "/public/scripts/servergame.js.map": "/public/scripts/servergame.js.map"
+    "/public/styles/client.css.map": "/public/styles/client.css.map"
 }

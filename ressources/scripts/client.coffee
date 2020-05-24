@@ -1,86 +1,4 @@
-class Card
-  constructor: (@color, @type) ->
-    if @color == 'red' or @color == 'green' or @color == 'yellow' or @color == 'blue'
-      this.id = @color + "_" + @type
-      this.name = @color + " " + @type
-    else
-      this.id = @type
-      this.name = @type
-
-# Shuffle function
-shuffle = (array) ->
-  currentIndex = array.length
-  temporaryValue = undefined
-  randomIndex = undefined
-  # While there remain elements to shuffle...
-  while 0 != currentIndex
-  # Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex)
-    currentIndex -= 1
-    # And swap it with the current element.
-    temporaryValue = array[currentIndex]
-    array[currentIndex] = array[randomIndex]
-    array[randomIndex] = temporaryValue
-  array
-
-# Variables
-deck = []
-playerHand = []
-
-# Create Game
-createGame = ->
-  # Variables
-  deck = []
-  playerHand = []
-
-  # Create new deck
-  createNewDeck = ->
-    deck = []
-    colors = ['red', 'green', 'yellow', 'blue']
-    specials = ['reverse', "reverse", 'skip', "skip", '+2', "+2"]
-
-    for color in colors
-
-      # Number Cards (with 0)
-      count = 0;
-      while count <= 9
-        deck.push new Card(color, count)
-        count++
-
-      # Number Cards (without 0)
-      count = 1;
-      while count <= 9
-        deck.push new Card(color, count)
-        count++
-
-      # Color special cards
-      for cards in specials
-        deck.push new Card(color, cards)
-        count++
-
-    # Wildcards
-    count = 1;
-    while count <= 4
-      deck.push new Card(false, 'wildcard')
-      count++
-
-    # +4 Cards
-    count = 1;
-    while count <= 4
-      deck.push new Card(false, '+4')
-      count++
-
-    shuffle(deck)
-    return
-
-  createPlayerHand = ->
-    playerHand = deck.slice(0, 7)
-    deck = deck.slice(7)
-    return
-
-  createNewDeck()
-  createPlayerHand()
-
+socket = io();
 
 #display player hand
 displayPlayerHand = ->
@@ -99,12 +17,12 @@ document.getElementById('reset_btn').onclick = ->
   console.log playerHand
   displayPlayerHand()
 
-socket = io()
 
 ###
 movement =
   up: false
   down: false
+
   left: false
   right: false
 

@@ -1,4 +1,7 @@
 let mix = require('laravel-mix');
+let path = require('path');
+const nodeExternals = require('webpack-node-externals');
+
 
 /*
  |--------------------------------------------------------------------------
@@ -13,7 +16,6 @@ let mix = require('laravel-mix');
 
 // Asset management
 mix.coffee('ressources/scripts/client.coffee', 'public/scripts/')
-    .coffee('ressources/scripts/servergame.coffee', 'public/scripts/')
     .sass('ressources/styles/client.scss', 'public/styles')
     .disableNotifications();
 
@@ -32,9 +34,17 @@ if(!mix.inProduction()) {
     // });
 }
 
+mix.webpackConfig(
+    // module.exports = {
+    //     target: 'node',
+    //     mode: 'development',
+    //     externals: [nodeExternals({
+    //         modulesFromFile: true
+    //     })]
+    // }
+)
 // Full API
 // mix.js(src, output);
-// mix.react(src, output); <-- Identical to mix.js(), but registers React Babel compilation.
 // mix.preact(src, output); <-- Identical to mix.js(), but registers Preact compilation.
 // mix.coffee(src, output); <-- Identical to mix.js(), but registers CoffeeScript compilation.
 // mix.ts(src, output); <-- TypeScript support. Requires tsconfig.json to exist in the same folder as webpack.mix.js

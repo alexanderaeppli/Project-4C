@@ -11,11 +11,10 @@ displayPlayerHand = ->
   return
 
 document.getElementById('reset_btn').onclick = ->
+  console.log 'click'
   socket.emit 'new game'
 
 socket.emit 'new player'
-
-socket.on 'cards', ->
 
 socket.on 'state', (players) ->
   console.log players

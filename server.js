@@ -134,47 +134,51 @@
       console.log('player disconnected from socket' + socket.id);
       return console.log(players);
     });
-    return io.on('new game', function(socket) {
-      var i, len, player;
+    socket.on('new game', function() {
+      console.log('starting new game');
       createNewDeck();
-      for (i = 0, len = players.length; i < len; i++) {
-        player = players[i];
-        deck = deck.slice(7);
-        player.hand = deck.slice(1, 7);
-      }
-      return io.sockets.emit('state', 'players');
+      players[socket.id] = {
+        hand: deck.slice(1, 8)
+      };
+      deck = deck.slice(7);
+      console.log(players);
+      return console.log(deck);
     });
   });
 
   /*
-var players = {};
-io.on('connection', function(socket) {
-    socket.on('new player', function() {
-        players[socket.id] = {
-            x: 300,
-            y: 300
-        };
-    });
-    socket.on('movement', function(data) {
-        var player = players[socket.id] || {};
-        if (data.left) {
-            player.x -= 5;
-        }
-        if (data.up) {
-            player.y -= 5;
-        }
-        if (data.right) {
-            player.x += 5;
-        }
-        if (data.down) {
-            player.y += 5;
-        }
-    });
-});
+  var players = {};
+  io.on('connection', function(socket) {
+      socket.on('new player', function() {
+          players[socket.id] = {
+              x: 300,
+              y: 300
+          };
+      });
+      socket.on('movement', function(data) {
+          var player = players[socket.id] || {};
+          if (data.left) {
+              player.x -= 5;
+          }
+          if (data.up) {
+              player.y -= 5;
+          }
+          if (data.right) {
+              player.x += 5;
+          }
+          if (data.down) {
+              player.y += 5;
+          }
+      });
+  });
 
-setInterval(function() {
-    io.sockets.emit('state', players);
-}, 1000 / 60);
-*/
+  setInterval(function() {
+      io.sockets.emit('state', players);
+  }, 1000 / 60);
+  */
+  //   for player in players
+
+//     player.hand = deck.slice 1, 7
+//   io.sockets.socket(socket.id).emit 'state', players
 
 }).call(this);

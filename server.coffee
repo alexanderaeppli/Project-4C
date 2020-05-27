@@ -109,12 +109,21 @@ io.on 'connection', (socket) ->
     console.log 'player disconnected from socket' + socket.id
     console.log players
 
-  io.on 'new game', (socket) ->
+  socket.on 'new game', ->
+    console.log 'starting new game'
     createNewDeck()
-    for player in players
-      deck = deck.slice(7)
-      player.hand = deck.slice 1, 7
-    io.sockets.emit 'state', 'players'
+    players[socket.id] =
+      hand: deck.slice 1, 8
+    deck = deck.slice 7
+    console.log players
+    console.log deck
+#   for player in players
+#
+#     player.hand = deck.slice 1, 7
+#   io.sockets.socket(socket.id).emit 'state', players
+
+  return
+
 
 ###
 var players = {};

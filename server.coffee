@@ -8,7 +8,7 @@ app = express()
 server = http.Server(app)
 io = socketIO(server)
 app.set 'port', 5000
-app.use '/public', express.static(__dirname + '/static')
+app.use '/public', express.static(__dirname + '/public')
 
 # Routing
 app.get '/', (request, response) ->
@@ -50,63 +50,71 @@ shuffle = (array) ->
 deck = []
 playerHand = []
 
-# Create Game
-createGame = ->
+# Create Game    playerHand = deck.slice(0, 7)
+
 # Variables
+deck = []
+# Create new deck
+createNewDeck = ->
   deck = []
-  playerHand = []
+  colors = ['red', 'green', 'yellow', 'blue']
+  specials = ['reverse', 'reverse', 'skip', 'skip', '+2', '+2']
 
-  # Create new deck
-  createNewDeck = ->
-    deck = []
-    colors = ['red', 'green', 'yellow', 'blue']
-    specials = ['reverse', "reverse", 'skip', "skip", '+2', "+2"]
-
-    for color in colors
+  for color in colors
 
 # Number Cards (with 0)
-      count = 0;
-      while count <= 9
-        deck.push new Card(color, count)
-        count++
-
-      # Number Cards (without 0)
-      count = 1;
-      while count <= 9
-        deck.push new Card(color, count)
-        count++
-
-      # Color special cards
-      for cards in specials
-        deck.push new Card(color, cards)
-        count++
-
-    # Wildcards
-    count = 1;
-    while count <= 4
-      deck.push new Card(false, 'wildcard')
+    count = 0;
+    while count <= 9
+      deck.push new Card(color, count)
       count++
 
-    # +4 Cards
+    # Number Cards (without 0)
     count = 1;
-    while count <= 4
-      deck.push new Card(false, '+4')
+    while count <= 9
+      deck.push new Card(color, count)
       count++
 
-    shuffle(deck)
-    return
+    # Color special cards
+    for cards in specials
+      deck.push new Card(color, cards)
+      count++
 
-  createPlayerHand = ->
-    playerHand = deck.slice(0, 7)
-    deck = deck.slice(7)
-    return
+  # Wildcards
+  count = 1;
+  while count <= 4
+    deck.push new Card(false, 'wildcard')
+    count++
 
-  createNewDeck()
-  createPlayerHand()
+  # +4 Cards
+  count = 1;
+  while count <= 4
+    deck.push new Card(false, '+4')
+    count++
 
+  shuffle(deck)
+  return
 
-# Add the WebSocket handlerss
+players = {}
 io.on 'connection', (socket) ->
+  #add connected clients to players
+  socket.on 'new player', ->
+    players[socket.id] =
+      hand: []
+    console.log 'new player connected to socket' + socket.id
+    console.log players
+
+  #remove disconnected clients from players
+  socket.on 'disconnect', ->
+    delete players[socket.id]
+    console.log 'player disconnected from socket' + socket.id
+    console.log players
+
+  io.on 'new game', (socket) ->
+    createNewDeck()
+    for player in players
+      deck = deck.slice(7)
+      player.hand = deck.slice 1, 7
+    io.sockets.emit 'state', 'players'
 
 ###
 var players = {};

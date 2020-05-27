@@ -3,7 +3,6 @@ socket = io();
 #display player hand
 displayPlayerHand = ->
   deckWrapper= document.getElementById('player__inventory')
-  deckWrapper.innerHTML = ''
   for card in playerHand
     singleCard = document.createElement("div")
     singleCard.id = card.id
@@ -12,10 +11,15 @@ displayPlayerHand = ->
   return
 
 document.getElementById('reset_btn').onclick = ->
-  createGame()
-  console.log deck
-  console.log playerHand
-  displayPlayerHand()
+  socket.emit 'new game'
+
+socket.emit 'new player'
+
+socket.on 'cards', ->
+
+socket.on 'state', (players) ->
+  console.log players
+
 
 
 ###

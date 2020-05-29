@@ -17,9 +17,8 @@ document.getElementById('reset_btn').onclick = ->
 socket.emit 'new player'
 
 socket.on 'state', (players) ->
+  console.log 'received'
   console.log players
-
-
 
 ###
 movement =

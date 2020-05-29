@@ -30,6 +30,15 @@ class Card
       this.id = @type
       this.name = @type
 
+class Player
+  constructor: ->
+    hand: []
+
+  giveCards = (targetID, quantity, source) ->
+    players[targetID].this.hand = source.slice 0, quantity
+    source = source.slice quantity
+    return
+
 # Shuffle function
 shuffle = (array) ->
   currentIndex = array.length
@@ -37,7 +46,7 @@ shuffle = (array) ->
   randomIndex = undefined
   # While there remain elements to shuffle...
   while 0 != currentIndex
-# Pick a remaining element...
+    # Pick a remaining element...
     randomIndex = Math.floor(Math.random() * currentIndex)
     currentIndex -= 1
     # And swap it with the current element.
@@ -48,12 +57,6 @@ shuffle = (array) ->
 
 # Variables
 deck = []
-playerHand = []
-
-# Create Game    playerHand = deck.slice(0, 7)
-
-# Variables
-deck = []
 # Create new deck
 createNewDeck = ->
   deck = []
@@ -61,7 +64,6 @@ createNewDeck = ->
   specials = ['reverse', 'reverse', 'skip', 'skip', '+2', '+2']
 
   for color in colors
-
 # Number Cards (with 0)
     count = 0;
     while count <= 9
@@ -75,11 +77,11 @@ createNewDeck = ->
       count++
 
     # Color special cards
-    for cards in specials
-      deck.push new Card(color, cards)
+    for card in specials
+      deck.push new Card(color, card)
       count++
 
-  # Wildcards
+  # Wildcardsdeck
   count = 1;
   while count <= 4
     deck.push new Card(false, 'wildcard')
@@ -94,35 +96,36 @@ createNewDeck = ->
   shuffle(deck)
   return
 
+#giveCards = (target, source, quantity) ->
+#  target = deck.slice 0, quantity
+#  source = source.slice quantity
+#  return
+
 players = {}
+
 io.on 'connection', (socket) ->
   #add connected clients to players
   socket.on 'new player', ->
-    players[socket.id] =
-      hand: []
-    console.log 'new player connected to socket' + socket.id
+    players[socket.id] = new Player
+    console.log 'new player connected to socket ' + socket.id
     console.log players
 
   #remove disconnected clients from players
   socket.on 'disconnect', ->
     delete players[socket.id]
-    console.log 'player disconnected from socket' + socket.id
-    console.log players
+    console.log 'player disconnected from socket ' + socket.id
 
   socket.on 'new game', ->
     console.log 'starting new game'
-    createNewDeck()
-    players[socket.id] =
-      hand: deck.slice 1, 8
-    deck = deck.slice 7
-    console.log players
+    createNewDeck
     console.log deck
-#   for player in players
-#
-#     player.hand = deck.slice 1, 7
-#   io.sockets.socket(socket.id).emit 'state', players
+    io.sockets.emit 'state', deck
+    return
+#    players[socket.id].giveCards(7, deck)
+#    console.log players
+#    for player in players
+#    io.sockets.emit 'state', players[socket.id].hand
 
-  return
 
 
 ###

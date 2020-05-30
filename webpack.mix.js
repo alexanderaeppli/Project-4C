@@ -15,7 +15,7 @@ const nodeExternals = require('webpack-node-externals');
  */
 
 // Asset management
-mix.coffee('ressources/scripts/client.coffee', 'public/scripts/')
+mix//.js('ressources/scripts/client.coffee' , 'public/scripts/')
     .sass('ressources/styles/client.scss', 'public/styles')
     .disableNotifications();
 

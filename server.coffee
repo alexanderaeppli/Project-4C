@@ -31,11 +31,10 @@ class Card
       this.name = @type
 
 class Player
-  constructor: ->
-    hand: []
+  constructor: (@hand, @id)->
 
-  giveCards = (targetID, quantity, source) ->
-    players[targetID].this.hand = source.slice 0, quantity
+  giveCards = (quantity, source) ->
+    this.hand = source.slice 0, quantity
     source = source.slice quantity
     return
 
@@ -101,14 +100,15 @@ createNewDeck = ->
 #  source = source.slice quantity
 #  return
 
-players = {}
+players = []
 
 io.on 'connection', (socket) ->
   #add connected clients to players
   socket.on 'new player', ->
-    players[socket.id] = new Player
+    players = new Player([], socket.id)
     console.log 'new player connected to socket ' + socket.id
     console.log players
+    return
 
   #remove disconnected clients from players
   socket.on 'disconnect', ->
@@ -117,14 +117,11 @@ io.on 'connection', (socket) ->
 
   socket.on 'new game', ->
     console.log 'starting new game'
-    createNewDeck
-    console.log deck
-    io.sockets.emit 'state', deck
-    return
-#    players[socket.id].giveCards(7, deck)
-#    console.log players
-#    for player in players
-#    io.sockets.emit 'state', players[socket.id].hand
+    createNewDeck()
+    giveCards(players[socket.id].hand, deck, 7)
+    console.log players
+    for player in players
+      io.sockets.emit 'state', players[socket.id].hand
 
 
 

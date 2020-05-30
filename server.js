@@ -4,6 +4,7 @@ const http = require('http');
 const path = require('path');
 const socketIO = require('socket.io');
 
+// Dependency variables
 const app = express();
 const server = http.Server(app);
 const io = socketIO(server);
@@ -21,6 +22,7 @@ server.listen(5000, function () {
     console.log('Starting server on port 5000');
 });
 
+// Classes
 class Card {
     constructor(color, type) {
         this.color = color;
@@ -35,7 +37,6 @@ class Card {
     }
 
 }
-
 class Player {
     constructor(hand) {
         this.hand = hand;
@@ -45,6 +46,10 @@ class Player {
         this.hand = deck.slice(0, quantity);
         deck = deck.slice(quantity);
     };
+
+    playCard(card) {
+        this.hand = this.hand.filter();
+    }
 }
 
 // Shuffle function
@@ -66,8 +71,10 @@ function shuffle(array) {
     return array;
 }
 
-// Variables
+// Global variables
 let deck = [];
+let stack = [];
+let players = {};
 
 // Create new deck
 function createNewDeck() {
@@ -111,15 +118,13 @@ function createNewDeck() {
     shuffle(deck);
 }
 
-let players = {};
-
 io.on('connection', function (socket) {
 
     //add connected clients to players
     socket.on('new player', function () {
         players[socket.id] = new Player([]);
         console.log('new Playesr connected to socket ' + socket.id);
-        console.log(players);
+        //console.log(players);
     });
 
     //remove disconnected clients from players
@@ -133,44 +138,13 @@ io.on('connection', function (socket) {
         console.log('starting new game');
         createNewDeck();
         // Give Player hands
-        let playerCardsMap = new Map;
+        let CardInventory = {};
         for (let [key, value] of Object.entries(players)) {
             value.giveCards(7);
-            playerCardsMap.set(key, value.length)
-            io.sockets(key).emit('state', value.hand);
+            CardInventory[`${key}`] = value.hand.length;
+            CardInventory
+            io.to(key).emit('player hand', value.hand);
         }
-        socket.emit(players[socket.id].hand);
-        io.emit('state', playerCardsMap);
+        io.emit('card inventory', CardInventory);
     });
 });
-
-/*
-var players = {};
-io.on('connection', function(socket) {
-  socket.on('new player', function() {
-      players[socket.id] = {
-          x: 300,
-          y: 300
-      };
-  });
-  socket.on('movement', function(data) {
-      var player = players[socket.id] || {};
-      if (data.left) {
-          player.x -= 5;
-      }
-      if (data.up) {
-          player.y -= 5;
-      }
-      if (data.right) {
-          player.x += 5;
-      }
-      if (data.down) {
-          player.y += 5;
-      }
-  });
-});
-
-setInterval(function() {
-  io.sockets.emit('state', players);
-}, 1000 / 60);
-*/

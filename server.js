@@ -45,16 +45,22 @@ class Player {
     }
 
     giveCards(quantity) {
-        this.hand = deck.slice(0, quantity);
+        this.hand = this.hand.concat(deck.slice(0, quantity));
         deck = deck.slice(quantity);
+        this.hand.sort()
+
     }
 
     playCard(card) {
         let playedCard = this.hand.find(obj => obj.uniqueid === card);
-        let playedCardIndex = this.hand.find(obj => obj.uniqueid === card);
+        let playedCardIndex = this.hand.findIndex(obj => obj.uniqueid === card);
         stack.push(playedCard);
         this.hand.splice(playedCardIndex, 1);
         io.emit('stack', stack);
+    }
+
+    resetHand(){
+        this.hand = [];
     }
 }
 
@@ -132,7 +138,6 @@ function createCardInventory(players) {
     }
     io.emit('card inventory', CardInventory);
 }
-
 io.on('connection', function (socket) {
 
     //add connected clients to players
@@ -153,17 +158,29 @@ io.on('connection', function (socket) {
         console.log('starting new game');
         createNewDeck();
         // Give Player hands
+
         for (let [key, value] of Object.entries(players)) {
+            value.resetHand();
             value.giveCards(7);
             io.to(key).emit('player hand', value.hand);
         }
+        stack= deck.slice(0, 1);
+        deck = deck.slice(1);
         io.emit('stack', stack);
         createCardInventory(players);
     });
 
     socket.on('play card', function (card) {
         players[socket.id].playCard(Number(card)); //Play card
+        socket.emit('player hand', players[socket.id].hand) // send updated Playerhand
+        //console.log(stack);
         createCardInventory(players); // create new inventory
-        socket.emit('player hand', players[socket.id].hand) // send playerhand
+    });
+
+    socket.on('draw card', function (card) {
+        players[socket.id].giveCards(1); //Play card
+        socket.emit('player hand', players[socket.id].hand) // send updated Playerhand
+        //console.log(stack);
+        createCardInventory(players); // create new inventory
     });
 });

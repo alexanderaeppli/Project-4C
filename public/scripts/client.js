@@ -1,33 +1,22 @@
 var socket = io();
 
-function displayPlayerHand(playerHand) {
-    var card, deckWrapper, i, len, singleCard;
-    deckWrapper = document.getElementById('player__inventory');
-    deckWrapper.innerHTML = '';
+function displayInventory(inventory, playerHand, clickable = true) {
+    var card, wrapper, i, len, singleCard;
+    wrapper = document.getElementById(inventory);
+    wrapper.innerHTML = '';
     for (i = 0, len = playerHand.length; i < len; i++) {
         card = playerHand[i];
         singleCard = document.createElement("div");
         singleCard.id = card.id;
-        singleCard.className = 'card';
-        singleCard.setAttribute('onclick', 'playCard("'+ card.uniqueid +'")');
-        singleCard.innerText = card.name;
-        deckWrapper.appendChild(singleCard);
+        singleCard.className = 'card '+ card.color;
+        if (clickable === true) {
+            singleCard.setAttribute('onclick', 'playCard("'+ card.uniqueid +'")');
+        }
+        singleCard.innerText = card.type;
+        wrapper.appendChild(singleCard);
     }
 }
-function displayStack(stack) {
-    var card, stackWrapper, i, len, singleCard;
-    stackWrapper = document.getElementById('stack__inventory');
-    stackWrapper.innerHTML = '';
-    for (i = 0, len = stack.length; i < len; i++) {
-        card = stack[i];
-        singleCard = document.createElement("div");
-        singleCard.id = card.id;
-        singleCard.className = 'card';
-        singleCard.setAttribute('onclick', 'playCard("'+ card.uniqueid +'")');
-        singleCard.innerText = card.name;
-        stackWrapper.appendChild(singleCard);
-    }
-}
+
 
 
 function playCard(id) {
@@ -46,10 +35,15 @@ document.getElementById('reset_btn').onclick = function () {
     socket.emit('new game');
 };
 
+document.getElementById('deck').onclick = function () {
+    //console.log('click');
+    socket.emit('draw card');
+};
+
 // Receive
 socket.on('player hand', function (playerHand) {
     //console.log(playerHand);
-    displayPlayerHand(playerHand);
+    displayInventory('player__inventory', playerHand);
 });
 
 socket.on('card inventory', function (CardInventory) {
@@ -59,5 +53,5 @@ socket.on('card inventory', function (CardInventory) {
 
 socket.on('stack', function (stack) {
     //console.log(stack);
-    displayStack(stack);
+    displayInventory('stack__inventory', stack, false);
 })

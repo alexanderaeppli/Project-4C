@@ -1,6 +1,6 @@
 {
-    "/public/scripts/client.js": "/public/scripts/client.js",
     "/public/styles/client.css": "/public/styles/client.css",
-    "/public/scripts/client.js.map": "/public/scripts/client.js.map",
-    "/public/styles/client.css.map": "/public/styles/client.css.map"
+    "/mix.js.map": "/mix.js.map",
+    "/public/styles/client.css.map": "/public/styles/client.css.map",
+    "/public/styles/styles.css": "/public/styles/styles.css"
 }

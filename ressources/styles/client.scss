@@ -1,5 +1,9 @@
 @use 'playerinventory';
 
+body {
+  font-family: sans-serif;
+}
+
 .content__wrapper {
   display: flex;
   justify-content: center;
@@ -10,7 +14,70 @@
     width: 900px;
     height: 600px;
     border: solid #848484 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+
+    #reset_btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
   }
+}
+#deck {
+  position: absolute;
+  right: 1rem;
+  top: calc(50% - 35px);
+  height: 70px;
+  width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 10px;
+  color: white;
+  background: gray;
+}
 
+#player__inventory {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  position: absolute;
+  bottom: 1rem;
+}
 
+#stack__inventory {
+  position: relative;
+  > .card {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}
+
+.card {
+  height: 70px;
+  width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  color: white;
+  background: gray;
+
+  &.red {
+    background: #d46b6b;
+  }
+  &.green {
+    background: #51ad4a;
+  }
+  &.blue {
+    background: #5565c2;
+  }
+  &.yellow {
+    background: #fcc72a;
+  }
 }

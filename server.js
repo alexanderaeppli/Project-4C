@@ -13,8 +13,17 @@ app.set('port', 5000);
 app.use('/public', express.static(__dirname + '/public'));
 
 // Routing
+let userName, gameroom;
 app.get('/', function (request, response) {
-    response.sendFile(path.join(__dirname, 'index.html'));
+    userName = request.query.user_name;
+    gameroom = request.query.gameroom;
+    console.log(userName + ' ' + gameroom);
+    // Check if username and gameroom are set; if not show form
+    if (typeof userName !== 'undefined' && typeof gameroom !== 'undefined' && userName.length >= '1' && gameroom.length >= '1') {
+        response.sendFile(path.join(__dirname, 'game.html'));
+    } else {
+        response.sendFile(path.join(__dirname, 'index.html'));
+    }
 });
 
 // Starts the server.
@@ -38,17 +47,24 @@ class Card {
         this.uniqueid = cardCounter++;
     }
 }
+
 class Player {
-    constructor(hand) {
-        //this.id = null;
+    constructor(name, hand) {
+        this.name = name;
         this.hand = hand;
     }
 
-    giveCards(quantity) {
+    giveCards(quantity, socket) {
         this.hand = this.hand.concat(deck.slice(0, quantity));
         deck = deck.slice(quantity);
-        this.hand.sort()
-
+        this.hand.sort(function (a, b) {
+            if (a.id < b.id) {
+                return -1;
+            }
+            if (a.id > b.id) {
+                return 1;
+            }
+        })
     }
 
     playCard(card) {
@@ -59,7 +75,7 @@ class Player {
         io.emit('stack', stack);
     }
 
-    resetHand(){
+    resetHand() {
         this.hand = [];
     }
 }
@@ -92,6 +108,7 @@ let CardInventory = {};
 // Create new deck
 function createNewDeck() {
     let card, color, colors, count, len, i, len1, j, specials;
+    CardInventory = {};
     deck = [];
     stack = [];
     colors = ['red', 'green', 'yellow', 'blue'];
@@ -134,17 +151,19 @@ function createNewDeck() {
 
 function createCardInventory(players) {
     for (let [key, value] of Object.entries(players)) {
-        CardInventory[`${key}`] = value.hand.length;
+        CardInventory[`${key}`] = { name: value.name, hand: value.hand.length}
     }
     io.emit('card inventory', CardInventory);
 }
-io.on('connection', function (socket) {
 
+io.on('connection', function (socket) {
     //add connected clients to players
     socket.on('new player', function () {
-        players[socket.id] = new Player([]);
+        socket.join(gameroom);
+        players[socket.id] = new Player(userName, []);
+        console.log(players)
         console.log('new Player connected to socket ' + socket.id);
-        //console.log(players);
+        createCardInventory(players)
     });
 
     //remove disconnected clients from players
@@ -158,29 +177,26 @@ io.on('connection', function (socket) {
         console.log('starting new game');
         createNewDeck();
         // Give Player hands
-
         for (let [key, value] of Object.entries(players)) {
             value.resetHand();
             value.giveCards(7);
-            io.to(key).emit('player hand', value.hand);
+            io.to(key).emit('player hand', value);
         }
-        stack= deck.slice(0, 1);
+        stack = deck.slice(0, 1);
         deck = deck.slice(1);
         io.emit('stack', stack);
         createCardInventory(players);
     });
 
     socket.on('play card', function (card) {
-        players[socket.id].playCard(Number(card)); //Play card
-        socket.emit('player hand', players[socket.id].hand) // send updated Playerhand
-        //console.log(stack);
+        players[socket.id].playCard(Number(card)); // Play card
+        socket.emit('player hand', players[socket.id]) // send updated Playerhand
         createCardInventory(players); // create new inventory
     });
 
     socket.on('draw card', function (card) {
-        players[socket.id].giveCards(1); //Play card
-        socket.emit('player hand', players[socket.id].hand) // send updated Playerhand
-        //console.log(stack);
+        players[socket.id].giveCards(1); // Play card
+        socket.emit('player hand', players[socket.id]) // send updated Playerhand
         createCardInventory(players); // create new inventory
     });
 });

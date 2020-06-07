@@ -1,6 +1,6 @@
 let mix = require('laravel-mix');
-let path = require('path');
-const nodeExternals = require('webpack-node-externals');
+//let path = require('path');
+//const nodeExternals = require('webpack-node-externals');
 
 
 /*
@@ -17,9 +17,13 @@ const nodeExternals = require('webpack-node-externals');
 // Asset management
 mix//.js('ressources/scripts/client.coffee' , 'public/scripts/')
     .sass('ressources/styles/client.scss', 'public/styles')
+    .styles([
+        'node_modules/normalize.css/normalize.css',
+        'public/styles/client.css'
+        ], 'public/styles/styles.css')
     .disableNotifications();
 
-if(!mix.inProduction()) {
+if (!mix.inProduction()) {
     mix.sourceMaps(true, 'source-map');
     // mix.browserSync({
     //     proxy: 'localhost:' + process.env.WEB_PORT,

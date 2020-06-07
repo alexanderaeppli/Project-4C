@@ -8,13 +8,22 @@ const socketIO = require('socket.io');
 const app = express();
 const server = http.Server(app);
 const io = socketIO(server);
-app.set('port', 5000);
 
+app.set('port', 5000);
 app.use('/public', express.static(__dirname + '/public'));
 
 // Routing
+let userName, gameroom;
 app.get('/', function (request, response) {
-    response.sendFile(path.join(__dirname, 'index.html'));
+    userName = request.query.user_name;
+    gameroom = request.query.gameroom;
+    console.log(userName + ' ' + gameroom);
+    // Check if username and gameroom are set; if not show form
+    if (typeof userName !== 'undefined' && typeof gameroom !== 'undefined' && userName.length >= '1' && gameroom.length >= '1') {
+        response.sendFile(path.join(__dirname, 'game.html'));
+    } else {
+        response.sendFile(path.join(__dirname, 'index.html'));
+    }
 });
 
 // Starts the server.
@@ -23,6 +32,7 @@ server.listen(5000, function () {
 });
 
 // Classes
+let cardCounter = 0; // Used to create incremental unique ids for all cards
 class Card {
     constructor(color, type) {
         this.color = color;
@@ -34,21 +44,39 @@ class Card {
             this.id = this.type;
             this.name = this.type;
         }
+        this.uniqueid = cardCounter++;
     }
-
 }
+
 class Player {
-    constructor(hand) {
+    constructor(name, hand) {
+        this.name = name;
         this.hand = hand;
     }
 
-    giveCards(quantity) {
-        this.hand = deck.slice(0, quantity);
+    giveCards(quantity, socket) {
+        this.hand = this.hand.concat(deck.slice(0, quantity));
         deck = deck.slice(quantity);
-    };
+        this.hand.sort(function (a, b) {
+            if (a.id < b.id) {
+                return -1;
+            }
+            if (a.id > b.id) {
+                return 1;
+            }
+        })
+    }
 
     playCard(card) {
-        this.hand = this.hand.filter();
+        let playedCard = this.hand.find(obj => obj.uniqueid === card);
+        let playedCardIndex = this.hand.findIndex(obj => obj.uniqueid === card);
+        stack.push(playedCard);
+        this.hand.splice(playedCardIndex, 1);
+        io.emit('stack', stack);
+    }
+
+    resetHand() {
+        this.hand = [];
     }
 }
 
@@ -75,11 +103,14 @@ function shuffle(array) {
 let deck = [];
 let stack = [];
 let players = {};
+let CardInventory = {};
 
 // Create new deck
 function createNewDeck() {
     let card, color, colors, count, len, i, len1, j, specials;
+    CardInventory = {};
     deck = [];
+    stack = [];
     colors = ['red', 'green', 'yellow', 'blue'];
     specials = ['reverse', 'reverse', 'skip', 'skip', '+2', '+2'];
     for (i = 0, len = colors.length; i < len; i++) {
@@ -96,7 +127,7 @@ function createNewDeck() {
             deck.push(new Card(color, count));
             count++;
         }
-// Color special cards
+        // Color special cards
         for (j = 0, len1 = specials.length; j < len1; j++) {
             card = specials[j];
             deck.push(new Card(color, card));
@@ -118,19 +149,27 @@ function createNewDeck() {
     shuffle(deck);
 }
 
-io.on('connection', function (socket) {
+function createCardInventory(players) {
+    for (let [key, value] of Object.entries(players)) {
+        CardInventory[`${key}`] = { name: value.name, hand: value.hand.length}
+    }
+    io.emit('card inventory', CardInventory);
+}
 
+io.on('connection', function (socket) {
     //add connected clients to players
     socket.on('new player', function () {
-        players[socket.id] = new Player([]);
-        console.log('new Playesr connected to socket ' + socket.id);
-        //console.log(players);
+        socket.join(gameroom);
+        players[socket.id] = new Player(userName, []);
+        console.log(players)
+        console.log('new Player connected to socket ' + socket.id);
+        createCardInventory(players)
     });
 
     //remove disconnected clients from players
     socket.on('disconnect', function () {
         delete players[socket.id];
-        return console.log('Player disconnected from socket ' + socket.id);
+        console.log('Player disconnected from socket ' + socket.id);
     });
 
     //Start new game
@@ -138,13 +177,26 @@ io.on('connection', function (socket) {
         console.log('starting new game');
         createNewDeck();
         // Give Player hands
-        let CardInventory = {};
         for (let [key, value] of Object.entries(players)) {
+            value.resetHand();
             value.giveCards(7);
-            CardInventory[`${key}`] = value.hand.length;
-            CardInventory
-            io.to(key).emit('player hand', value.hand);
+            io.to(key).emit('player hand', value);
         }
-        io.emit('card inventory', CardInventory);
+        stack = deck.slice(0, 1);
+        deck = deck.slice(1);
+        io.emit('stack', stack);
+        createCardInventory(players);
+    });
+
+    socket.on('play card', function (card) {
+        players[socket.id].playCard(Number(card)); // Play card
+        socket.emit('player hand', players[socket.id]) // send updated Playerhand
+        createCardInventory(players); // create new inventory
+    });
+
+    socket.on('draw card', function (card) {
+        players[socket.id].giveCards(1); // Play card
+        socket.emit('player hand', players[socket.id]) // send updated Playerhand
+        createCardInventory(players); // create new inventory
     });
 });

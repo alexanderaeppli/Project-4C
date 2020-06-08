@@ -4,6 +4,22 @@ body {
   font-family: sans-serif;
 }
 
+.form__wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+
+  #startup-form {
+    input {
+      margin-bottom: 1rem;
+    }
+    .submit {
+      float: right;
+    }
+  }
+}
 .content__wrapper {
   display: flex;
   flex-direction: column;
@@ -71,7 +87,13 @@ body {
 }
 
 #stack__inventory {
+  height: 70px;
+  width: 70px;
+  position: relative;
 
+  .card {
+    position: absolute;
+  }
 }
 
 .card {

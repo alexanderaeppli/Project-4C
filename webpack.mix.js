@@ -15,7 +15,7 @@ let mix = require('laravel-mix');
  */
 
 // Asset management
-mix//.js('ressources/scripts/client.coffee' , 'public/scripts/')
+mix//.js('ressources/scripts/client.js' , 'public/scripts/')
     .sass('ressources/styles/client.scss', 'public/styles')
     .styles([
         'node_modules/normalize.css/normalize.css',
@@ -39,13 +39,6 @@ if (!mix.inProduction()) {
 }
 
 mix.webpackConfig(
-    // module.exports = {
-    //     target: 'node',
-    //     mode: 'development',
-    //     externals: [nodeExternals({
-    //         modulesFromFile: true
-    //     })]
-    // }
 )
 // Full API
 // mix.js(src, output);

@@ -37,11 +37,10 @@ class Card {
     constructor(color, type) {
         this.color = color;
         this.type = type;
+        this.id = this.color + "_" + this.type;
         if (this.color === 'red' || this.color === 'green' || this.color === 'yellow' || this.color === 'blue') {
-            this.id = this.color + "_" + this.type;
             this.name = this.color + " " + this.type;
         } else {
-            this.id = this.type;
             this.name = this.type;
         }
         this.uniqueid = cardCounter++;
@@ -137,13 +136,13 @@ function createNewDeck() {
     // Wildcardsdeck
     count = 1;
     while (count <= 4) {
-        deck.push(new Card(false, 'wildcard'));
+        deck.push(new Card('special', 'wildcard'));
         count++;
     }
     // +4 Cards
     count = 1;
     while (count <= 4) {
-        deck.push(new Card(false, '+4'));
+        deck.push(new Card('special', '+4'));
         count++;
     }
     shuffle(deck);

@@ -4,20 +4,15 @@ body {
   font-family: sans-serif;
 }
 
-.form__wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  width: 100%;
+#startup-form {
+  position: absolute;
+  top: calc(50vh - 50%);
 
-  #startup-form {
-    input {
-      margin-bottom: 1rem;
-    }
-    .submit {
-      float: right;
-    }
+  input {
+    margin-bottom: 1rem;
+  }
+  .submit {
+    float: right;
   }
 }
 
@@ -27,7 +22,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  position: relative;;
+  position: relative;
 
   .content__inner {
     width: 100%;

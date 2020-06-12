@@ -12,14 +12,16 @@ const io = socketIO(server);
 app.set('port', 5000);
 app.use('/public', express.static(__dirname + '/public'));
 
+// Global variables
+let playerName, gameroom, players = {}, CardInventory = {};
+
 // Routing
-let userName, gameroom;
 app.get('/', function (request, response) {
-    userName = request.query.user_name;
+    playerName = request.query.user_name;
     gameroom = request.query.gameroom;
-    console.log(userName + ' ' + gameroom);
-    // Check if username and gameroom are set; if not show form
-    if (typeof userName !== 'undefined' && typeof gameroom !== 'undefined' && userName.length >= '1' && gameroom.length >= '1') {
+    console.log(playerName + ' ' + gameroom);
+    // Check if playername and gameroom are set; if not show form
+    if (typeof playerName !== 'undefined' && typeof gameroom !== 'undefined' && playerName.length >= '1' && gameroom.length >= '1') {
         response.sendFile(path.join(__dirname, 'game.html'));
     } else {
         response.sendFile(path.join(__dirname, 'index.html'));
@@ -55,18 +57,12 @@ function shuffle(array) {
     return array;
 }
 
-// Global variables
-let deck = [];
-let stack = [];
-let players = {};
-let CardInventory = {};
-
 // Create new deck
-function createNewDeck() {
+function createNewDeck(game) {
     let card, color, colors, count, len, i, len1, j, specials;
     CardInventory = {};
-    deck = [];
-    stack = [];
+    game.deck = [];
+    game.stack = [];
     colors = ['red', 'green', 'yellow', 'blue'];
     specials = ['reverse', 'reverse', 'skip', 'skip', '+2', '+2'];
     for (i = 0, len = colors.length; i < len; i++) {
@@ -74,85 +70,92 @@ function createNewDeck() {
         // Number Cards (with 0)
         count = 0;
         while (count <= 9) {
-            deck.push(new Card(color, count));
+            game.deck.push(new Card(color, count));
             count++;
         }
         // Number Cards (without 0)
         count = 1;
         while (count <= 9) {
-            deck.push(new Card(color, count));
+            game.deck.push(new Card(color, count));
             count++;
         }
         // Color special cards
         for (j = 0, len1 = specials.length; j < len1; j++) {
             card = specials[j];
-            deck.push(new Card(color, card));
+            game.deck.push(new Card(color, card));
             count++;
         }
     }
-    // Wildcardsdeck
+    // Wildcards
     count = 1;
     while (count <= 4) {
-        deck.push(new Card('special', 'wildcard'));
+        game.deck.push(new Card('special', 'wildcard'));
         count++;
     }
     // +4 Cards
     count = 1;
     while (count <= 4) {
-        deck.push(new Card('special', '+4'));
+        game.deck.push(new Card('special', '+4'));
         count++;
     }
-    shuffle(deck);
+    shuffle(game.deck);
 }
 
-function createCardInventory(players) {
+function createCardInventory(players, room) {
     for (let [key, value] of Object.entries(players)) {
-        CardInventory[`${key}`] = { name: value.name, hand: value.hand.length}
+        CardInventory[`${key}`] = {name: value.name, hand: value.hand.length}
     }
-    io.emit('card inventory', CardInventory);
+    io.to(room).emit('card inventory', CardInventory);
 }
 
 io.on('connection', function (socket) {
     //add connected clients to players
     socket.on('new player', function () {
         socket.join(gameroom);
-        players[socket.id] = new Player(userName, []);
+        // Create new Game if it not already exists
+        if (!(players.hasOwnProperty(gameroom))) {
+            players[gameroom] = new Game();
+        }
+        // add player to game
+        let player = new Player(playerName);
+        players[gameroom].addPlayer(socket.id, player);
         console.log(players)
         console.log('new Player connected to socket ' + socket.id);
-        createCardInventory(players)
+        createCardInventory(players[gameroom].room, gameroom);
     });
 
     //remove disconnected clients from players
     socket.on('disconnect', function () {
-        delete players[socket.id];
+        //players[gameroom].deletePlayer(socket.id);
         console.log('Player disconnected from socket ' + socket.id);
     });
 
     //Start new game
     socket.on('new game', function () {
         console.log('starting new game');
-        createNewDeck();
+        createNewDeck(players[gameroom]);
         // Give Player hands
-        for (let [key, value] of Object.entries(players)) {
+        for (let [key, value] of Object.entries(players[gameroom].room)) {
             value.resetHand();
-            value.giveCards(7);
+            value.giveCards(7, players[gameroom].deck);
             io.to(key).emit('player hand', value);
         }
-        stack = deck.slice(0, 1);
-        deck = deck.slice(1);
-        io.emit('stack', stack);
-        createCardInventory(players);
+        players[gameroom].stack = players[gameroom].deck.slice(0, 1);
+        players[gameroom].deck = players[gameroom].deck.slice(1);
+        io.emit('stack', players[gameroom].stack);
+        createCardInventory(players[gameroom].room, gameroom); // create new inventory
     });
 
     socket.on('play card', function (card) {
-        players[socket.id].playCard(Number(card)); // Play card
-        socket.emit('player hand', players[socket.id]) // send updated Playerhand
-        createCardInventory(players); // create new inventory
+        players[gameroom].room[socket.id].playCard(Number(card), players[gameroom].stack); // Play card
+        io.emit('stack', players[gameroom].stack);
+        socket.emit('player hand', players[gameroom].room[socket.id]) // send updated PlayerHand
+        createCardInventory(players[gameroom].room, gameroom); // create new inventory
     });
 
-    socket.on('draw card', function (card) {
-        players[socket.id].giveCards(1); // Play card
-        socket.emit('player hand', players[socket.id]) // send updated Playerhand
-        createCardInventory(players); // create new inventory
+    socket.on('draw card', function () {
+        players[gameroom].room[socket.id].giveCards(1, players[gameroom].deck); // Receive card
+        socket.emit('player hand', players[gameroom].room[socket.id]) // send updated PlayerHand
+        createCardInventory(players[gameroom].room, gameroom); // create new inventory
     });
 });

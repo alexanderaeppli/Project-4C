@@ -7,6 +7,11 @@
     <script src="socket.io/socket.io.js"></script>
 </head>
 <body>
+<form id="startup-form" action="/" method="get">
+    <label>User Name:<br><input type="text" name="user_name"></label><br>
+    <label>Gameroom ID:<br><input type="text" name="gameroom"></label><br>
+    <input class="submit" type="submit" value="submit">
+</form>
 <div class="content__wrapper">
     <button id="reset_btn">RESET GAME</button>
     <div id="enemy__wrapper">

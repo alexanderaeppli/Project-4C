@@ -1,5 +1,5 @@
 const socket = io();
-const anime = require('animejs');
+import anime from 'animejs/lib/anime.es.js';
 
 // Global variables
 let playerName;
@@ -82,7 +82,10 @@ document.getElementById('deck').onclick = function () {
 
 // Receive
 socket.on('player hand', function (player) {
-    userName = player.name;
+    playerName = player.name;
+    if(typeof playerHand !== 'undefined') {
+
+    }
     displayInventory('player__inventory', player.hand);
 });
 

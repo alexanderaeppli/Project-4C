@@ -32,52 +32,9 @@ server.listen(5000, function () {
 });
 
 // Classes
-let cardCounter = 0; // Used to create incremental unique ids for all cards
-class Card {
-    constructor(color, type) {
-        this.color = color;
-        this.type = type;
-        this.id = this.color + "_" + this.type;
-        if (this.color === 'red' || this.color === 'green' || this.color === 'yellow' || this.color === 'blue') {
-            this.name = this.color + " " + this.type;
-        } else {
-            this.name = this.type;
-        }
-        this.uniqueid = cardCounter++;
-    }
-}
-
-class Player {
-    constructor(name, hand) {
-        this.name = name;
-        this.hand = hand;
-    }
-
-    giveCards(quantity, socket) {
-        this.hand = this.hand.concat(deck.slice(0, quantity));
-        deck = deck.slice(quantity);
-        this.hand.sort(function (a, b) {
-            if (a.id < b.id) {
-                return -1;
-            }
-            if (a.id > b.id) {
-                return 1;
-            }
-        })
-    }
-
-    playCard(card) {
-        let playedCard = this.hand.find(obj => obj.uniqueid === card);
-        let playedCardIndex = this.hand.findIndex(obj => obj.uniqueid === card);
-        stack.push(playedCard);
-        this.hand.splice(playedCardIndex, 1);
-        io.emit('stack', stack);
-    }
-
-    resetHand() {
-        this.hand = [];
-    }
-}
+const Game = require('./ressources/classes/Game');
+const Player = require('./ressources/classes/Player');
+const Card = require('./ressources/classes/Card');
 
 // Shuffle function
 function shuffle(array) {

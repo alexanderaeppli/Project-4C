@@ -1,10 +1,12 @@
 const socket = io();
 const anime = require('animejs');
 
-let userName;
+// Global variables
+let playerName;
+let playerHand;
 
 function displayInventory(inventory, playerHand, clickable = true) {
-    var card, wrapper, i, len, singleCard;
+    let card, wrapper, i, len, singleCard;
     wrapper = document.getElementById(inventory);
     wrapper.innerHTML = '';
     for (i = 0, len = playerHand.length; i < len; i++) {
@@ -12,10 +14,22 @@ function displayInventory(inventory, playerHand, clickable = true) {
         singleCard = document.createElement("div");
         singleCard.className = 'card ' + card.color;
         if (clickable === true) {
-            singleCard.setAttribute('onclick', 'playCard("' + card.uniqueid + '")');
+            singleCard.setAttribute('data-uniqueid', card.uniqueid);
         }
         singleCard.innerText = card.type;
         wrapper.appendChild(singleCard);
+    }
+
+    // Event listener to play cards
+    let cards, playerInventory, uniqueid, eventTarget;
+    playerInventory = document.getElementById('player__inventory');
+    cards = playerInventory.getElementsByClassName('card');
+    for (let i = 0; i < cards.length; i++) {
+        cards[i].addEventListener('click',(e) =>  {
+            eventTarget = e.target;
+            uniqueid = eventTarget.getAttribute('data-uniqueid');
+            playCard(uniqueid);
+        });
     }
 }
 
@@ -24,13 +38,13 @@ function playCard(id) {
 }
 
 function displayEnemyHands(CardInventory) {
-    let i, wrapper, len, singleCard;
+    let i, wrapper, singleEnemy, singleEnemyName, singleEnemyDeck;
     wrapper = document.getElementById('enemy__wrapper_inner');
     wrapper.innerHTML = '';
     i = 1;
     for (let [key, value] of Object.entries(CardInventory)) {
         // Filter out enemies
-        //if (value.name !== userName) {
+        //if (value.name !== playerName) {
         // Create Enemy Wrapper
         singleEnemy = document.createElement("div");
         singleEnemy.classList.add('player_' + i, 'enemy');
@@ -41,6 +55,7 @@ function displayEnemyHands(CardInventory) {
         // Create enemy deck
         singleEnemyDeck = document.createElement("div");
         singleEnemyDeck.className = 'enemy__deck'
+
         singleEnemyDeck.innerText = value.hand;
         // while (--value.hand) {
         //     singleCard = document.createElement("div");
@@ -58,12 +73,10 @@ function displayEnemyHands(CardInventory) {
 socket.emit('new player');
 
 document.getElementById('reset_btn').onclick = function () {
-    //console.log('click');
     socket.emit('new game');
 };
 
 document.getElementById('deck').onclick = function () {
-    //console.log('click');
     socket.emit('draw card');
 };
 
@@ -74,11 +87,9 @@ socket.on('player hand', function (player) {
 });
 
 socket.on('card inventory', function (CardInventory) {
-    //console.log(CardInventory);
-    displayEnemyHands(CardInventory)
+    displayEnemyHands(CardInventory);
 })
 
 socket.on('stack', function (stack) {
-    //console.log(stack);
     displayInventory('stack__inventory', stack, false);
 })

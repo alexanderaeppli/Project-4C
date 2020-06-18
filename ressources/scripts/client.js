@@ -5,7 +5,7 @@ import anime from 'animejs/lib/anime.es.js';
 let playerName;
 let playerHand;
 
-function displayInventory(inventory, playerHand, clickable = true) {
+function displayInventory(inventory, playerHand) {
     let card, wrapper, i, len, singleCard;
     wrapper = document.getElementById(inventory);
     wrapper.innerHTML = '';
@@ -13,9 +13,7 @@ function displayInventory(inventory, playerHand, clickable = true) {
         card = playerHand[i];
         singleCard = document.createElement("div");
         singleCard.className = 'card ' + card.color;
-        if (clickable === true) {
-            singleCard.setAttribute('data-uniqueid', card.uniqueid);
-        }
+        singleCard.setAttribute('data-uniqueid', card.uniqueid);
         singleCard.innerText = card.type;
         wrapper.appendChild(singleCard);
     }
@@ -25,16 +23,12 @@ function displayInventory(inventory, playerHand, clickable = true) {
     playerInventory = document.getElementById('player__inventory');
     cards = playerInventory.getElementsByClassName('card');
     for (let i = 0; i < cards.length; i++) {
-        cards[i].addEventListener('click',(e) =>  {
+        cards[i].addEventListener('click', (e) => {
             eventTarget = e.target;
             uniqueid = eventTarget.getAttribute('data-uniqueid');
-            playCard(uniqueid);
+            socket.emit('play card', uniqueid);
         });
     }
-}
-
-function playCard(id) {
-    socket.emit('play card', id);
 }
 
 function displayEnemyHands(CardInventory) {
@@ -83,7 +77,7 @@ document.getElementById('deck').onclick = function () {
 // Receive
 socket.on('player hand', function (player) {
     playerName = player.name;
-    if(typeof playerHand !== 'undefined') {
+    if (typeof playerHand !== 'undefined') {
 
     }
     displayInventory('player__inventory', player.hand);
@@ -94,5 +88,5 @@ socket.on('card inventory', function (CardInventory) {
 })
 
 socket.on('stack', function (stack) {
-    displayInventory('stack__inventory', stack, false);
+    displayInventory('stack__inventory', stack);
 })

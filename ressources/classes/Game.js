@@ -1,16 +1,16 @@
 class Game {
     constructor() {
-        this.room = {};
+        this.players = {};
         this.deck = [];
         this.stack = [];
     }
 
     addPlayer(socket, player) {
-        this.room[socket] = player;
+        this.players[socket] = player;
     }
 
     deletePlayer(socket) {
-        delete this.room[socket]
+        delete this.players[socket]
     }
 
 }

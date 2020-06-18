@@ -13,7 +13,7 @@ app.set('port', 5000);
 app.use('/public', express.static(__dirname + '/public'));
 
 // Global variables
-let playerName, gameroom, players = {}, CardInventory = {};
+let playerName, gameroom, games = {}, CardInventory = {};
 
 // Routing
 app.get('/', function (request, response) {
@@ -43,7 +43,7 @@ const Game = require('./ressources/classes/Game');
 const Player = require('./ressources/classes/Player');
 
 // Functions
-const createNewDeck = require('./ressources/scripts/deck');
+const createNewDeck = require('./ressources/scripts/server/deck');
 
 function createCardInventory(players, gameroom) {
     CardInventory[gameroom] = {};
@@ -55,63 +55,65 @@ function createCardInventory(players, gameroom) {
 io.on('connection', function (socket) {
     //add connected clients to players
     socket.on('new player', function () {
+        socket.gameroom = gameroom;
         socket.join(gameroom);
         socket.gameroom = gameroom;
         // Create new Game if it not already exists
-        if (!(players.hasOwnProperty(socket.gameroom))) {
-            players[socket.gameroom] = new Game();
+        if (!(games.hasOwnProperty(socket.gameroom))) {
+            games[socket.gameroom] = new Game();
         }
         // add player to game
         let player = new Player(playerName);
-        players[socket.gameroom].addPlayer(socket.id, player);
+        games[socket.gameroom].addPlayer(socket.id, player);
         console.log('new Player connected to socket ' + socket.id + ' and room ' + socket.gameroom);
-        createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
+        createCardInventory(games[socket.gameroom].players, socket.gameroom); // create new inventory
         io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
-        console.log('Players ' + players)
+        console.log('Players ' + games)
     });
 
     //remove disconnected clients from players
     socket.on('disconnect', function () {
-        if (players[socket.gameroom]) {
-            players[socket.gameroom].deletePlayer(socket.id);
+        if (games[socket.gameroom]) {
+            games[socket.gameroom].deletePlayer(socket.id);
             console.log('Player disconnected from socket ' + socket.id + ' and room ' + socket.gameroom);
+            createCardInventory(games[socket.gameroom].players, socket.gameroom); // create new inventory
+            io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
         }
-        createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
-        io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
     });
 
-    //Start new game
+    //Start new games[socket.gameroom]
     socket.on('new game', function () {
         console.log('starting new game');
-        createNewDeck(players[socket.gameroom]);
+        createNewDeck(games[socket.gameroom]);
         // Give Player hands
-        for (let [key, value] of Object.entries(players[socket.gameroom].room)) {
+        for (let [key, value] of Object.entries(games[socket.gameroom].players)) {
             value.resetHand();
-            value.giveCards(7, players[socket.gameroom].deck);
+            value.giveCards(7, games[socket.gameroom].deck);
             io.to(key).emit('player hand', value);
         }
-        players[socket.gameroom].stack = players[socket.gameroom].deck.slice(0, 1);
-        players[socket.gameroom].deck = players[socket.gameroom].deck.slice(1);
-        io.to(socket.gameroom).emit('stack', players[socket.gameroom].stack);
+        games[socket.gameroom].stack = games[socket.gameroom].deck.slice(0, 1);
+        games[socket.gameroom].deck = games[socket.gameroom].deck.slice(1);
+        io.to(socket.gameroom).emit('stack', games[socket.gameroom].stack);
 
-        createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
+        createCardInventory(games[socket.gameroom].players, socket.gameroom); // create new inventory
         io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
     });
 
     socket.on('play card', function (card) {
-        players[socket.gameroom].room[socket.id].playCard(Number(card), players[socket.gameroom].stack); // Play card
-        socket.emit('player hand', players[socket.gameroom].room[socket.id]) // send updated PlayerHand
-        io.to(socket.gameroom).emit('stack', players[socket.gameroom].stack); // send stack
-
-        createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
+        const players = games[socket.gameroom].players
+        players[socket.id].playCard(Number(card), games[socket.gameroom].stack); // Play card
+        socket.emit('player hand', players[socket.id]) // send updated PlayerHand
+        io.to(socket.gameroom).emit('stack', games[socket.gameroom].stack); // send stack
+        createCardInventory(games[socket.gameroom].players, socket.gameroom); // create new inventory
         io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // send inventory
+        console.log(games)
     });
 
     socket.on('draw card', function () {
-        players[socket.gameroom].room[socket.id].giveCards(1, players[socket.gameroom].deck); // Receive card
-        socket.emit('player hand', players[socket.gameroom].room[socket.id]) // send updated PlayerHand
-
-        createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
+        const players = games[socket.gameroom].players
+        games[socket.gameroom].deck = players[socket.id].giveCards(1, games[socket.gameroom].deck); // Receive card
+        socket.emit('player hand', players[socket.id]) // send updated PlayerHand
+        createCardInventory(games[socket.gameroom].players, socket.gameroom); // create new inventory
         io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
     });
 });

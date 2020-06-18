@@ -1,5 +1,5 @@
 class Player {
-    constructor(name) {
+    constructor(name = 'Player') {
         this.name = name;
         this.hand = [];
     }
@@ -15,13 +15,18 @@ class Player {
                 return 1;
             }
         })
+        return deck;
     }
 
     playCard(card, stack) {
         let playedCard = this.hand.find(obj => obj.uniqueid === card);
         let playedCardIndex = this.hand.findIndex(obj => obj.uniqueid === card);
-        stack.push(playedCard);
-        this.hand.splice(playedCardIndex, 1);
+        if (playedCard !== undefined) {
+            // Bugfix: When the first card is played an undefined object is created (somehow) and added to the stack, breaking the game. Hence the condition.
+            this.hand.splice(playedCardIndex, 1);
+            stack.push(playedCard);
+        }
+        return stack;
     }
 
     resetHand() {

@@ -9,8 +9,8 @@ class Game {
         this.room[socket] = player;
     }
 
-    deletePlayer(player) {
-        delete this.room.player;
+    deletePlayer(socket) {
+        delete this.room[socket]
     }
 
 }

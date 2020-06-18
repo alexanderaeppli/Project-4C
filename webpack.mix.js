@@ -1,4 +1,5 @@
-let mix = require('laravel-mix');
+const mix = require('laravel-mix');
+const normalize = require.resolve('normalize.css')
 //let path = require('path');
 //const nodeExternals = require('webpack-node-externals');
 
@@ -15,10 +16,10 @@ let mix = require('laravel-mix');
  */
 
 // Asset management
-mix//.js('ressources/scripts/client.coffee' , 'public/scripts/')
+mix.js('ressources/scripts/client.js' , 'public/scripts/')
     .sass('ressources/styles/client.scss', 'public/styles')
     .styles([
-        'node_modules/normalize.css/normalize.css',
+        normalize.css,
         'public/styles/client.css'
         ], 'public/styles/styles.css')
     .disableNotifications();
@@ -37,16 +38,6 @@ if (!mix.inProduction()) {
     //     ],
     // });
 }
-
-mix.webpackConfig(
-    // module.exports = {
-    //     target: 'node',
-    //     mode: 'development',
-    //     externals: [nodeExternals({
-    //         modulesFromFile: true
-    //     })]
-    // }
-)
 // Full API
 // mix.js(src, output);
 // mix.preact(src, output); <-- Identical to mix.js(), but registers Preact compilation.

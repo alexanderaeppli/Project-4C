@@ -4,13 +4,25 @@ body {
   font-family: sans-serif;
 }
 
+#startup-form {
+  position: absolute;
+  top: calc(50vh - 50%);
+
+  input {
+    margin-bottom: 1rem;
+  }
+  .submit {
+    float: right;
+  }
+}
+
 .content__wrapper {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  position: relative;;
+  position: relative;
 
   .content__inner {
     width: 100%;
@@ -71,7 +83,13 @@ body {
 }
 
 #stack__inventory {
+  height: 70px;
+  width: 70px;
+  position: relative;
 
+  .card {
+    position: absolute;
+  }
 }
 
 .card {

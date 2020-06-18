@@ -46,14 +46,10 @@ const Player = require('./ressources/classes/Player');
 const createNewDeck = require('./ressources/scripts/deck');
 
 function createCardInventory(players, gameroom) {
+    CardInventory[gameroom] = {};
     for (let [key, value] of Object.entries(players)) {
-        if (!(CardInventory[gameroom])) {
-            CardInventory[gameroom] = {};
-        }
         CardInventory[gameroom][`${key}`] = {name: value.name, hand: value.hand.length};
     }
-    //console.log(CardInventory);
-    //return CardInventory;
 }
 
 io.on('connection', function (socket) {
@@ -71,6 +67,7 @@ io.on('connection', function (socket) {
         console.log('new Player connected to socket ' + socket.id + ' and room ' + socket.gameroom);
         createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
         io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
+        console.log('Players ' + players)
     });
 
     //remove disconnected clients from players
@@ -78,9 +75,9 @@ io.on('connection', function (socket) {
         if (players[socket.gameroom]) {
             players[socket.gameroom].deletePlayer(socket.id);
             console.log('Player disconnected from socket ' + socket.id + ' and room ' + socket.gameroom);
-            createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
-            io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
         }
+        createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
+        io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
     });
 
     //Start new game
@@ -96,22 +93,25 @@ io.on('connection', function (socket) {
         players[socket.gameroom].stack = players[socket.gameroom].deck.slice(0, 1);
         players[socket.gameroom].deck = players[socket.gameroom].deck.slice(1);
         io.to(socket.gameroom).emit('stack', players[socket.gameroom].stack);
+
         createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
         io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
     });
 
     socket.on('play card', function (card) {
         players[socket.gameroom].room[socket.id].playCard(Number(card), players[socket.gameroom].stack); // Play card
-        createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
         socket.emit('player hand', players[socket.gameroom].room[socket.id]) // send updated PlayerHand
         io.to(socket.gameroom).emit('stack', players[socket.gameroom].stack); // send stack
+
+        createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
         io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // send inventory
     });
 
     socket.on('draw card', function () {
         players[socket.gameroom].room[socket.id].giveCards(1, players[socket.gameroom].deck); // Receive card
-        createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
         socket.emit('player hand', players[socket.gameroom].room[socket.id]) // send updated PlayerHand
+
+        createCardInventory(players[socket.gameroom].room, socket.gameroom); // create new inventory
         io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
     });
 });

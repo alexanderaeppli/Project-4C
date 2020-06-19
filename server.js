@@ -20,7 +20,6 @@ app.get('/', function (request, response) {
     response.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Routing
 app.get('/:gameId(*[A-Za-z0-9_])', function (request, response) {
     // playerName = request.query.user_name;
     gameroom = request.params.gameId;
@@ -68,7 +67,7 @@ io.on('connection', function (socket) {
         console.log('new Player connected to socket ' + socket.id + ' and room ' + socket.gameroom);
         createCardInventory(games[socket.gameroom].players, socket.gameroom); // create new inventory
         io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
-        console.log('Players ' + games)
+
     });
 
     //remove disconnected clients from players
@@ -88,7 +87,7 @@ io.on('connection', function (socket) {
         // Give Player hands
         for (let [key, value] of Object.entries(games[socket.gameroom].players)) {
             value.resetHand();
-            value.giveCards(7, games[socket.gameroom].deck);
+            games[socket.gameroom].deck = value.giveCards(7, games[socket.gameroom].deck);
             io.to(key).emit('player hand', value);
         }
         games[socket.gameroom].stack = games[socket.gameroom].deck.slice(0, 1);
@@ -113,7 +112,7 @@ io.on('connection', function (socket) {
         const players = games[socket.gameroom].players
         games[socket.gameroom].deck = players[socket.id].giveCards(1, games[socket.gameroom].deck); // Receive card
         socket.emit('player hand', players[socket.id]) // send updated PlayerHand
-        createCardInventory(games[socket.gameroom].players, socket.gameroom); // create new inventory
+        createCardInventory(players, socket.gameroom); // create new inventory
         io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]); // Send inventory
     });
 });

@@ -8,10 +8,10 @@ class Player {
         this.hand = this.hand.concat(deck.slice(0, quantity));
         deck = deck.slice(quantity);
         this.hand.sort(function (a, b) {
-            if (a.id < b.id) {
+            if (a.uniqueid < b.uniqueid) {
                 return -1;
             }
-            if (a.id > b.id) {
+            if (a.uniqueid > b.uniqueid) {
                 return 1;
             }
         })

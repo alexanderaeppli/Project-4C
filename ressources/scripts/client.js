@@ -90,3 +90,22 @@ socket.on('card inventory', function (CardInventory) {
 socket.on('stack', function (stack) {
     displayInventory('stack__inventory', stack);
 })
+
+let cycle = 0
+let dummies = ['dummy', 'dommy', 'doomy', 'demi']
+let reverse = true;
+
+document.getElementById('cycle').addEventListener('click', function () {
+    if (reverse === true) {
+        cycle--
+    } else {
+        cycle++
+    }
+
+    if (cycle >= dummies.length) {
+        cycle = 0
+    } else if (cycle < 0) {
+        cycle = dummies.length - 1
+    }
+    console.log(cycle + ': ' + dummies[cycle])
+})

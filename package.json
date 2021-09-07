@@ -2,21 +2,22 @@
   "name": "project4c",
   "version": "1.0.0",
   "dependencies": {
-    "animejs": "^3.2.0",
+    "animejs": "^3.2.1",
+    "core-js": "^3.6.5",
     "express": "^4.17.1",
     "net": "^1.0.2",
     "normalize.css": "^8.0.1",
-    "socket.io": "^2.3.0",
-    "vue": "^2.6.11"
+    "socket.io": "^4.2.0",
+    "vue": "^3.0.0",
+    "vue-class-component": "^8.0.0-0",
+    "vue-router": "^4.0.0-0"
   },
   "description": "Similarities with existing games involving 4 colors are purely accidental and not intendet at all.",
   "main": "./server.js",
   "scripts": {
-    "test": "npm echo 'test'",
-    "server_script": "coffee --watch --compile server.coffee",
-    "start_server": "node server.js",
-    "development": "NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-    "watch": "npm run development -- --watch"
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
   },
   "repository": {
     "type": "git",
@@ -25,17 +26,48 @@
   "author": "Alexander Aeppli",
   "license": "ISC",
   "bugs": {
-    "url": "https://gitlab.com/alexanderaeppli/project4c/issues"
+    "url": "https://github.com/alexanderaeppli/Project-4C/issues"
   },
-  "homepage": "https://gitlab.com/alexanderaeppli/project4c#README",
+  "homepage": "https://github.com/alexanderaeppli/Project-4C#README",
   "devDependencies": {
-    "chokidar": "^3.4.0",
-    "laravel-mix": "^5.0.4",
-    "resolve-url-loader": "^3.1.0",
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-typescript": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.2.9",
+    "@vue/eslint-config-standard": "^5.1.2",
+    "@vue/eslint-config-typescript": "^7.0.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "eslint-plugin-vue": "^7.0.0",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.6.11",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11"
-  }
+    "typescript": "~4.1.5"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "@vue/standard",
+      "@vue/typescript/recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
 }

@@ -15,7 +15,8 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
 
-export default class Board extends Vue {}
+export default class Board extends Vue {
+}
 </script>
 
 <style>

@@ -2,28 +2,34 @@
 import express from 'express'
 import http from 'http'
 import path from 'path'
-import { Server } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 
 // Classes
-// import Game from './server/classes/Game'
+import Game from './server/classes/Game'
 import Player from './server/classes/Player'
-// import Deck from './server/classes/Deck'
+import Deck from './server/classes/Deck'
 
 // Dependency variables
 const app = express()
 const server = new http.Server(app)
-const io = new Server(server)
+const io = new Server(server, {
+    cors: {
+        origin: 'http://localhost:8080',
+        methods: ['GET', 'POST']
+    }
+})
 
 app.set('port', 5000)
 app.use(express.static(path.join(__dirname, '/dist')))
 
 // Global variables
 // let playerName: string
-const players: Record<string, unknown> = {}
+// const players: Record<string, Player> = {}
+let game: Game
 // const CardInventory: Record<string, unknown> = {}
 
 // Starts the server.
-server.listen(5000, function () {
+server.listen(5000, () => {
     console.log('Starting server on port 5000')
 })
 
@@ -34,24 +40,22 @@ server.listen(5000, function () {
 //     }
 // }
 
-io.on('connection', function (socket) {
+io.on('connection', (socket: Socket) => {
     socket.on('new player', function () {
-        socket.join('1')
-        players[socket.id] = new Player()
-        console.log(players)
+        if (!game) game = new Game()
+        game.addPlayer(socket.id, new Player())
+        console.log(game)
         console.log('new Player connected to socket ' + socket.id)
         // createCardInventory(players)
     })
 
     /** remove disconnected clients from players */
-    // socket.on('disconnect', function () {
-    //     if (players[socket.gameroom]) {
-    //         players[socket.gameroom].deletePlayer(socket.id)
-    //         console.log('Player disconnected from socket ' + socket.id + ' and room ' + socket.gameroom)
-    //     }
-    //     createCardInventory(players[socket.gameroom].room, socket.gameroom) // create new inventory
-    //     io.to(socket.gameroom).emit('card inventory', CardInventory[socket.gameroom]) // Send inventory
-    // })
+    socket.on('disconnect', () => {
+        game.deletePlayer(socket.id)
+        console.log('Player disconnected from socket ' + socket.id + ' and room ' + socket)
+        // createCardInventory(players[socket].room, socket) // create new inventory
+        // io.to(socket).emit('card inventory', CardInventory[socket]) // Send inventory
+    })
 
     // // Start new game
     // socket.on('new game', function () {

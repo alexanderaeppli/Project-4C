@@ -1,24 +1,39 @@
+import { Socket } from 'socket.io'
+import Card from './Card'
 import Deck from './Deck'
+import Player from './Player'
 
 export default class Game {
-    room: Record<string, unknown>
+    // room: Record<string, unknown>
     deck: Deck
-    stack: Record<string, unknown>[]
+    stack: Record<string, Card>[]
+    players: Record<string, Player>
 
     constructor () {
-        this.room = {}
+        this.deck = {} as Deck
         this.stack = []
+        this.players = {} as Record<string, Player>
     }
 
-    createDeck () : void {
-        this.deck = new Deck()
+    // createDeck () : void {
+    //     this.deck = new Deck()
+    // }
+
+    addPlayer (socketID: string, player: Player) : void {
+        this.players[socketID] = player
     }
 
-    addPlayer (socket, player) : void {
-        this.room[socket] = player
+    deletePlayer (socketID: string) : void {
+        delete this.players[socketID]
     }
 
-    deletePlayer (socket) : void {
-        delete this.room[socket]
+    getCardInventory () {
+        let inventory: Record<string, number> = {}
+
+        Object.keys(this.players).forEach(socketID => {
+            inventory[socketID] = this.players[socketID].hand.length
+        })
+
+        return inventory
     }
 }

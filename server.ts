@@ -49,13 +49,17 @@ io.on('connection', (socket: Socket) => {
         // createCardInventory(players)
     })
 
-    /** remove disconnected clients from players */
-    socket.on('disconnect', () => {
-        game.deletePlayer(socket.id)
-        console.log('Player disconnected from socket ' + socket.id + ' and room ' + socket)
-        // createCardInventory(players[socket].room, socket) // create new inventory
-        // io.to(socket).emit('card inventory', CardInventory[socket]) // Send inventory
+    socket.on('test', () => {
+        console.log('success')
     })
+
+    // /** remove disconnected clients from players */
+    // socket.on('disconnect', () => {
+    //     game.deletePlayer(socket.id)
+    //     console.log('Player disconnected from socket ' + socket.id + ' and room ' + socket)
+    //     // createCardInventory(players[socket].room, socket) // create new inventory
+    //     // io.to(socket).emit('card inventory', CardInventory[socket]) // Send inventory
+    // })
 
     // // Start new game
     // socket.on('new game', function () {

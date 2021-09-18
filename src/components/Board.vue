@@ -1,6 +1,6 @@
 <template>
     <div class="content__wrapper">
-        <button id="reset_btn">RESET GAME</button>
+        <button id="reset_btn" @click="this.$socket.emit('test')">RESET GAME</button>
         <div id="enemy__wrapper">
             <div id="enemy__wrapper_inner"></div>
         </div>
@@ -13,9 +13,22 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component'
+import { Socket } from 'socket.io-client'
 
-export default class Board extends Vue {
+export default {
+    props: {
+        socket: Socket
+    },
+    data () {
+        return {
+            socket: this.$socket
+        }
+    },
+    methods: {
+        test () : void {
+            
+        }
+    }
 }
 </script>
 

@@ -1,15 +1,14 @@
 <template>
-<div class="form__wrapper">
-    <Board />
-</div>
+    <login/>
 </template>
 
 <script lang="ts">
-import Board from '@/components/Board.vue' // @ is an alias to /src
+import Login from '@/components/Login.vue'
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
     components: {
-        Board
+        Login
     }
-}
+})
 </script>

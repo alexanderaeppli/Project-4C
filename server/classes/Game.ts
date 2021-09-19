@@ -27,7 +27,8 @@ export default class Game {
         delete this.players[socketID]
     }
 
-    getCardInventory () {
+    getCardInventory () : Record<string, number> {
+        // eslint-disable-next-line prefer-const
         let inventory: Record<string, number> = {}
 
         Object.keys(this.players).forEach(socketID => {

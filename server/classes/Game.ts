@@ -1,4 +1,3 @@
-import { Socket } from 'socket.io'
 import Card from './Card'
 import Deck from './Deck'
 import Player from './Player'
@@ -27,12 +26,13 @@ export default class Game {
         delete this.players[socketID]
     }
 
-    getCardInventory () : Record<string, number> {
+    getCardInventory () : Record<string, Record<string, unknown>> {
         // eslint-disable-next-line prefer-const
-        let inventory: Record<string, number> = {}
+        let inventory: Record<string, Record<string, unknown>> = {}
 
         Object.keys(this.players).forEach(socketID => {
-            inventory[socketID] = this.players[socketID].hand.length
+            inventory[socketID].name = this.players[socketID].name
+            inventory[socketID].hand = this.players[socketID].hand.length
         })
 
         return inventory
